@@ -1,0 +1,15 @@
+{
+    "Hello": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+    ],
+    "String" : "I am a string!",
+    "Object": {
+        "1": 2
+    },
+    "Double": 2.22
+}
