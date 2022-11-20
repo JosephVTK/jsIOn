@@ -1,3 +1,3 @@
-- Nested objects are preventing the parser from collecting objects that proceed it.
-- Keys with an " in it cause corruption
-- Values with an ", [, { cause corruption
+- Nested objects are preventing the parser from collecting objects that proceed it. FIXED -JA
+- Keys with an " in it cause corruption. FIXED -JA
+- Values with an ", [, { cause corruption. FIXED -JA

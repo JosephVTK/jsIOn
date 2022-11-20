@@ -69,5 +69,5 @@ JSONdata *create_json_bool(const char *key, int variable);
 // Config Data
 
 #define JSON_BUFFER_STRING ("  ")
-#define JSON_MAX_VALUE_BUFFER (1024 * 1000)
+#define JSON_MAX_VALUE_BUFFER (1024 * 16)
 #define JSON_MAX_KEY_BUFFER (1024 * 1)

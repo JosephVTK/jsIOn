@@ -4,16 +4,16 @@ JavaScript (Input/Output Object) Notation
 
 Copyright 2022 Joseph Arnusch
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
@@ -241,6 +241,18 @@ const char *get_json_key(char **ptr_string) {
 
     for (; **ptr_string != '\0'; ++ * ptr_string) {
 
+        if (**ptr_string == '\\') {
+            /*
+
+                Add the \ character and the next character as well.
+
+            */
+            sprintf(temp + strlen(temp), "%c", **ptr_string);
+            ++ *ptr_string;
+            sprintf(temp + strlen(temp), "%c", **ptr_string);
+            continue;
+        }
+
         if (**ptr_string == '"') {
             if (in_key == FALSE) {
                 in_key = TRUE;
@@ -252,6 +264,7 @@ const char *get_json_key(char **ptr_string) {
         }
         sprintf(temp + strlen(temp), "%c", **ptr_string);
     }
+
     return temp;
 }
 
@@ -281,24 +294,37 @@ void parse_json_value(char **ptr_string, JSONdata *new_object) {
         if (**ptr_string == '"')
             in_string = !in_string;
 
-        if (**ptr_string == '{') {
-            ++ *ptr_string;
-            new_object->json_value_type = jsonOBJECT;
-            parse_json_string(ptr_string, new_object);
-            return;
-        }
+        if (in_string == FALSE) {
+            if (**ptr_string == '{') {
+                ++ *ptr_string;
+                new_object->json_value_type = jsonOBJECT;
+                parse_json_string(ptr_string, new_object);
+                return;
+            }
 
-        if (**ptr_string == '[') {
-            ++ *ptr_string;
-            new_object->json_value_type = jsonARRAY;
-            parse_json_string(ptr_string, new_object);
-            return;
-        }
+            if (**ptr_string == '[') {
+                ++ *ptr_string;
+                new_object->json_value_type = jsonARRAY;
+                parse_json_string(ptr_string, new_object);
+                return;
+            }
 
-        if (**ptr_string == '}' || **ptr_string == ']' || **ptr_string == ',' || **ptr_string == ' ') {
-            if (in_string == FALSE)
+            if (**ptr_string == '}' || **ptr_string == ']' || **ptr_string == ',' || **ptr_string == ' ')
                 break;
+        } else {
+            if (**ptr_string == '\\') {
+                /*
+
+                    Add the \ character and the next character as well.
+
+                */
+                sprintf(temp + strlen(temp), "%c", **ptr_string);
+                ++ *ptr_string;
+                sprintf(temp + strlen(temp), "%c", **ptr_string);
+                continue;
+            }
         }
+
 
         snprintf(temp + strlen(temp), JSON_MAX_VALUE_BUFFER, "%c", **ptr_string);
     }
@@ -353,13 +379,18 @@ static void parse_json_string(char **ptr_string, JSONdata *parent) {
     JSONdata *new_object = NULL;
 
     for (; **ptr_string != '\0'; ++ * ptr_string) {
+
         if (isspace(**ptr_string) || **ptr_string == ',')
             continue;
 
-        if (IS_JSON(parent, jsonOBJECT) && **ptr_string == '}')
+        if (IS_JSON(parent, jsonOBJECT) && **ptr_string == '}') {
+            ++ *ptr_string;
             break;
-        if (IS_JSON(parent, jsonARRAY) && **ptr_string == ']')
+        }
+        if (IS_JSON(parent, jsonARRAY) && **ptr_string == ']') {
+            ++ *ptr_string;
             break;
+        }
 
         if (new_object == NULL && parent->json_value_type == jsonOBJECT) {
             if (parent->json_value_type == jsonOBJECT) {
@@ -390,12 +421,18 @@ static void parse_json_string(char **ptr_string, JSONdata *parent) {
         If somewhere along the way we've come to the end of the string, break the loop.
         If we allow the loop to iterate we wander off the memory trail and you will see things not
         meant for mortal eyes... BEWARE!!! */
+
         if (**ptr_string == '\0')
             break;
-        if (IS_JSON(parent, jsonOBJECT) && **ptr_string == '}')
+
+        if (IS_JSON(parent, jsonOBJECT) && **ptr_string == '}') {
+            ++ *ptr_string;
             break;
-        if (IS_JSON(parent, jsonARRAY) && **ptr_string == ']')
+        }
+        if (IS_JSON(parent, jsonARRAY) && **ptr_string == ']') {
+            ++ *ptr_string;
             break;
+        }
 
     }
 }
@@ -619,13 +656,10 @@ int main() {
     example_create_and_output_json();
 }
 
-
-
 int main() {
     example_read_json_file_and_output_json();
 }
 */
-
 int main() {
-    printf("Compiled...");
+    printf("Compiled...\n");
 }
