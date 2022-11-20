@@ -3,6 +3,7 @@ jsIOn.h
 JavaScript (Input/Output Object) Notation
 
 Copyright 2022 Joseph Arnusch
+https://github.com/JosephVTK/jsIOn
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
 files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -39,11 +40,13 @@ JSONdata *jsonCreateBool(const char *key, int variable);
 
 /* Modifiers */
 JSONdata *jsonAddObject(JSONdata *container, JSONdata *item);
+JSONdata *jsonGetValueFromObject(JSONdata *object, const char *key);
 
 /* Utilities */
 JSONdata *json_read_from_disk(const char *file_name);
 int json_free_object(JSONdata *j);
 void json_write_to_disk(const char *file_name, JSONdata *object);
+int jsonKeyIs(JSONdata *object, const char *key);
 
 // ----------------------
 
@@ -228,13 +231,41 @@ JSONdata *jsonAddObject(JSONdata *container, JSONdata *item) {
     return item;
 }
 
+
+/*
+    Retrieve a value from an object
+*/
+JSONdata *jsonGetValueFromObject(JSONdata *object, const char *key) {
+    JSONdata *j;
+
+    if (IS_JSON(object, jsonOBJECT) == FALSE)
+        return NULL;
+
+    for (j = object->child; j != NULL; j = j->next) {
+        if (j->key == NULL)
+            continue;
+     
+        if (strcmp(j->key, key) == 0)
+            return j;
+    }
+
+    return NULL;
+}
+
+/*
+    Quick function to confirm key
+*/
+int jsonKeyIs(JSONdata *object, const char *key) {
+    return 1 ? strcmp(key, object->key) == 0 : 0;
+}
+
 /*
     Here we are moving through the submitted string and grabbing the contents between quotation marks.
 
     TODO: This needs to be fleshed out. I have concerns about operation if a " finds it's wait inside of a key. Also proper
     error handling would be nice.
 */
-const char *get_json_key(char **ptr_string) {
+const char *parse_json_key(char **ptr_string) {
     static char temp[JSON_MAX_KEY_BUFFER];
     *temp = '\0';
     int in_key = FALSE;
@@ -394,7 +425,7 @@ static void parse_json_string(char **ptr_string, JSONdata *parent) {
 
         if (new_object == NULL && parent->json_value_type == jsonOBJECT) {
             if (parent->json_value_type == jsonOBJECT) {
-                new_object = jsonCreateObject(get_json_key(ptr_string));
+                new_object = jsonCreateObject(parse_json_key(ptr_string));
                 jsonAddObject(parent, new_object);
             }
         } else {
@@ -574,7 +605,11 @@ JSONdata *json_read_from_disk(const char *file_name) {
     if (string == NULL)
         return NULL;
 
-    fread(string, sizeof(char), numbytes, json_file);
+    if (fread(string, sizeof(char), numbytes, json_file) != numbytes) {
+        printf("Something went wrong reading the file.\n");
+        exit(1);
+    }
+
     fclose(json_file);
 
     to_json = string;
@@ -655,11 +690,12 @@ see how it operates.
 int main() {
     example_create_and_output_json();
 }
-
+*/
 int main() {
     example_read_json_file_and_output_json();
 }
-*/
+/*
 int main() {
     printf("Compiled...\n");
 }
+*/

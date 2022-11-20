@@ -3,6 +3,7 @@ jsIOn.c
 JavaScript (Input/Output Object) Notation
 
 Copyright 2022 Joseph Arnusch
+https://github.com/JosephVTK/jsIOn
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
 files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
@@ -65,12 +66,13 @@ JSONdata *jsonCreateBool(const char *key, int variable);
 
 /* Modifiers */
 JSONdata *jsonAddObject(JSONdata *container, JSONdata *item);
+JSONdata *jsonGetValueFromObject(JSONdata *object, const char *key);
 
 /* Utilities */
 JSONdata *json_read_from_disk(const char *file_name);
 int json_free_object(JSONdata *j);
 void json_write_to_disk(const char *file_name, JSONdata *object);
-
+int jsonKeyIs(JSONdata *object, const char *key);
 
 // Config Data
 

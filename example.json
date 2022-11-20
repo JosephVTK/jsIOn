@@ -11,5 +11,9 @@
     "Object": {
         "1": 2
     },
-    "Double": 2.22
+    "Double": 2.22,
+    "ObjArray" : [
+        { "1" : "One" },
+        { "2" : "Two" }
+    ]
 }
