@@ -55,16 +55,22 @@ typedef struct json_data {
 #define IS_JSON(json_object, jType) (json_object->json_value_type == jType) 
 #define JSON_CONTAINER (jsonOBJECT || jsonARRAY)
 
-void clear_json(JSONdata *j);
-void write_json(const char *file_name, JSONdata *object);
-void add_to_object(JSONdata *container, JSONdata *item);
+/* Creators */
+JSONdata *jsonCreateArray(const char *key);
+JSONdata *jsonCreateObject(const char *key);
+JSONdata *jsonCreateString(const char *key, const char *variable);
+JSONdata *jsonCreateInt(const char *key, int variable);
+JSONdata *jsonCreateDouble(const char *key, double variable);
+JSONdata *jsonCreateBool(const char *key, int variable);
 
-JSONdata *create_json_array(const char *key);
-JSONdata *create_json_object(const char *key);
-JSONdata *create_json_string(const char *key, const char *variable);
-JSONdata *create_json_integer(const char *key, int variable);
-JSONdata *create_json_double(const char *key, double variable);
-JSONdata *create_json_bool(const char *key, int variable);
+/* Modifiers */
+JSONdata *jsonAddObject(JSONdata *container, JSONdata *item);
+
+/* Utilities */
+JSONdata *json_read_from_disk(const char *file_name);
+int json_free_object(JSONdata *j);
+void json_write_to_disk(const char *file_name, JSONdata *object);
+
 
 // Config Data
 
