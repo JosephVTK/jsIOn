@@ -269,6 +269,7 @@ const char *parse_json_key(char **ptr_string) {
     static char temp[JSON_MAX_KEY_BUFFER];
     *temp = '\0';
     int in_key = FALSE;
+    ssize_t len = 0;
 
     for (; **ptr_string != '\0'; ++ * ptr_string) {
 
@@ -278,9 +279,9 @@ const char *parse_json_key(char **ptr_string) {
                 Add the \ character and the next character as well.
 
             */
-            sprintf(temp + strlen(temp), "%c", **ptr_string);
+            len += snprintf(temp + len, JSON_MAX_KEY_BUFFER - len, "%c", **ptr_string);
             ++ *ptr_string;
-            sprintf(temp + strlen(temp), "%c", **ptr_string);
+            len += snprintf(temp + len, JSON_MAX_KEY_BUFFER - len, "%c", **ptr_string);
             continue;
         }
 
@@ -293,7 +294,7 @@ const char *parse_json_key(char **ptr_string) {
                 break;
             }
         }
-        sprintf(temp + strlen(temp), "%c", **ptr_string);
+        snprintf(temp + len, JSON_MAX_KEY_BUFFER - len, "%c", **ptr_string);
     }
 
     return temp;
@@ -320,6 +321,8 @@ void parse_json_value(char **ptr_string, JSONdata *new_object) {
     int is_double = FALSE;
     int is_string = FALSE;
     int is_bool = -1;
+
+    ssize_t len = 0;
 
     for (; **ptr_string != '\0'; ++ * ptr_string) {
         if (**ptr_string == '"')
@@ -349,15 +352,15 @@ void parse_json_value(char **ptr_string, JSONdata *new_object) {
                     Add the \ character and the next character as well.
 
                 */
-                sprintf(temp + strlen(temp), "%c", **ptr_string);
+                len += snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", **ptr_string);
                 ++ *ptr_string;
-                sprintf(temp + strlen(temp), "%c", **ptr_string);
+                len += snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", **ptr_string);
                 continue;
             }
         }
 
 
-        snprintf(temp + strlen(temp), JSON_MAX_VALUE_BUFFER, "%c", **ptr_string);
+        snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", **ptr_string);
     }
 
     if (temp[0] == '"') {
@@ -512,16 +515,16 @@ static char *json_value_to_string(JSONdata *item) {
     case jsonARRAY:
         return NULL;
     case jsonBOOL:
-        sprintf(buf, "%s", item->j_integer == 1 ? "true" : "false");
+        snprintf(buf, 256, "%s", item->j_integer == 1 ? "true" : "false");
         return buf;
     case jsonINT:
-        sprintf(buf, "%d", item->j_integer);
+        snprintf(buf, 256, "%d", item->j_integer);
         return buf;
     case jsonDOUBLE:
-        sprintf(buf, "%f", item->j_double);
+        snprintf(buf, 256, "%f", item->j_double);
         return buf;
     case jsonSTRING:
-        sprintf(buf, "\"%s\"", item->j_string);
+        snprintf(buf, 256, "\"%s\"", item->j_string);
         return buf;
     default:
         return '\0';
