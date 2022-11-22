@@ -269,6 +269,7 @@ const char *parse_json_key(char **ptr_string) {
     static char temp[JSON_MAX_KEY_BUFFER];
     *temp = '\0';
     int in_key = FALSE;
+
     ssize_t len = 0;
 
     for (; **ptr_string != '\0'; ++ * ptr_string) {
