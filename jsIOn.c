@@ -1,5 +1,5 @@
 /*
-jsIOn.h
+jsIOn.c
 JavaScript (Input/Output Object) Notation
 
 Copyright 2022 Joseph Arnusch
@@ -75,7 +75,7 @@ static int reverse_count_to_char(const char *string, char to_char) {
     Get the minimum number.
 */
 static int _floor(int x, int floor) {
-    return (x ? x >= floor : floor);
+    return (x >= floor ? x : floor);
 }
 
 
@@ -551,7 +551,7 @@ static char *json_value_to_string(JSONdata *item) {
 void json_to_buf(JSONdata *object, char *buf, ssize_t max_len, int indent) {
     JSONdata *obj;
     int i;
-    ssize_t len = 0;
+    size_t len = 0;
     char indent_buffer[8];
     *indent_buffer = '\0';
 
@@ -592,19 +592,20 @@ void json_to_buf(JSONdata *object, char *buf, ssize_t max_len, int indent) {
     }
 
     if (len > max_len) {
-        printf("Buffer overflow in json_to_buf\n");
+        printf("Buffer overflow in json_to_buf. %lu > %lu\n", len, max_len);
         exit(0);
     }
 
 }
 
 void json_write_to_disk(const char *file_name, JSONdata *object) {
-    char buf[1024 * 24];
+    size_t MAX_BUFFER = 1024 * 1024;
+    char buf[MAX_BUFFER];
     FILE *fp;
 
     *buf = '\0';
 
-    json_to_buf(object, &*buf, 1024 * 24, 0);
+    json_to_buf(object, &*buf, MAX_BUFFER, 0);
     fp = fopen(file_name, "w");
     fprintf(fp, "%s", buf);
     fclose(fp);
@@ -691,6 +692,7 @@ static void example_create_and_output_json()
 
     // Write it to disk
     json_write_to_disk("test_file.json", object);
+    json_write_to_disk("test_file.json", object);
 
     // IMPORTANT
     // IMPORTANT
@@ -710,14 +712,15 @@ Uncomment either one of the below main() functions and compile this file and run
 see how it operates.
 */
 
-/*
+
 int main() {
     example_create_and_output_json();
 }
-*/
+/*
 int main() {
     example_read_json_file_and_output_json();
 }
+*/
 /*
 int main() {
     printf("Compiled...\n");
