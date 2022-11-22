@@ -70,6 +70,15 @@ static int reverse_count_to_char(const char *string, char to_char) {
     return -1;
 }
 
+
+/*
+    Get the minimum number.
+*/
+static int _floor(int x, int floor) {
+    return (x ? x >= floor : floor);
+}
+
+
 /*
     Prep new JSONdata for use and assign a key if required.
 */
@@ -542,50 +551,61 @@ static char *json_value_to_string(JSONdata *item) {
 void json_to_buf(JSONdata *object, char *buf, ssize_t max_len, int indent) {
     JSONdata *obj;
     int i;
+    ssize_t len = 0;
     char indent_buffer[8];
     *indent_buffer = '\0';
 
     for (i = 0; i < indent; i++)
         snprintf(indent_buffer + strlen(indent_buffer), 8, JSON_BUFFER_STRING);
 
-    if (object->json_value_type == jsonARRAY) {
+    len = strlen(buf);
+
+    if (IS_JSON(object, jsonARRAY)) {
         if (object->key == NULL)
-            snprintf(buf + strlen(buf), max_len, "%s[\n", indent_buffer);
+            len += snprintf(buf + len, _floor(max_len - len, 0), "%s[\n", indent_buffer);
         else
-            snprintf(buf + strlen(buf), max_len, "%s\"%s\" : [\n", indent_buffer, object->key);
-    } else if (object->json_value_type == jsonOBJECT) {
+            len += snprintf(buf + len, _floor(max_len - len, 0), "%s\"%s\" : [\n", indent_buffer, object->key);
+    } else if (IS_JSON(object, jsonOBJECT)) {
         if (object->key == NULL)
-            snprintf(buf + strlen(buf), max_len, "%s{\n", indent_buffer);
+            len += snprintf(buf + len, _floor(max_len - len, 0), "%s{\n", indent_buffer);
         else
-            snprintf(buf + strlen(buf), max_len, "%s\"%s\" : {\n", indent_buffer, object->key);
+            len += snprintf(buf + len, _floor(max_len - len, 0), "%s\"%s\" : {\n", indent_buffer, object->key);
     }
+
     for (obj = object->child; obj != NULL; obj = obj->next) {
         if (obj->json_value_type == jsonARRAY || obj->json_value_type == jsonOBJECT) {
-            json_to_buf(obj, buf, max_len, indent + 1);
+            json_to_buf(obj, buf, _floor(max_len - len, 0), indent + 1);
+            len = strlen(buf);
 
         } else {
-            if (object->json_value_type == jsonOBJECT)
-                snprintf(buf + strlen(buf), max_len, "%s%s\"%s\":%s%s\n", indent_buffer, JSON_BUFFER_STRING, obj->key, json_value_to_string(obj), obj->next ? "," : "");
+            if (IS_JSON(object, jsonOBJECT))
+                len += snprintf(buf + len, _floor(max_len - len, 0), "%s%s\"%s\":%s%s\n", indent_buffer, JSON_BUFFER_STRING, obj->key, json_value_to_string(obj), obj->next ? "," : "");
             else
-                snprintf(buf + strlen(buf), max_len, "%s%s%s%s\n", indent_buffer, JSON_BUFFER_STRING, json_value_to_string(obj), obj->next ? "," : "");
+                len += snprintf(buf + len, _floor(max_len - len, 0), "%s%s%s%s\n", indent_buffer, JSON_BUFFER_STRING, json_value_to_string(obj), obj->next ? "," : "");
         }
-
     }
 
-    if (object->json_value_type == jsonARRAY) {
-        snprintf(buf + strlen(buf), max_len, "%s]%s\n", indent_buffer, object->next ? "," : "");
+    if (IS_JSON(object, jsonARRAY)) {
+        len += snprintf(buf + len, _floor(max_len - len, 0), "%s]%s\n", indent_buffer, object->next ? "," : "");
     } else if (object->json_value_type == jsonOBJECT) {
-        snprintf(buf + strlen(buf), max_len, "%s}%s\n", indent_buffer, object->next ? "," : "");
+        len += snprintf(buf + len, _floor(max_len - len, 0), "%s}%s\n", indent_buffer, object->next ? "," : "");
+    }
+
+    if (len > max_len) {
+        printf("Buffer overflow in json_to_buf\n");
+        exit(0);
     }
 
 }
 
 void json_write_to_disk(const char *file_name, JSONdata *object) {
-    char buf[500000];
+    char buf[1024 * 24];
     FILE *fp;
 
-    json_to_buf(object, &*buf, 65535, 0);
-    fp = fopen(file_name, "w+");
+    *buf = '\0';
+
+    json_to_buf(object, &*buf, 1024 * 24, 0);
+    fp = fopen(file_name, "w");
     fprintf(fp, "%s", buf);
     fclose(fp);
 }
