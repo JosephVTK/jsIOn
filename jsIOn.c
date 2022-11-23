@@ -570,16 +570,16 @@ static char *json_value_to_string(JSONdata *item) {
     case jsonARRAY:
         return NULL;
     case jsonBOOL:
-        snprintf(buf, 256, "%s", item->j_integer == 1 ? "true" : "false");
+        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%s", item->j_integer == 1 ? "true" : "false");
         return buf;
     case jsonINT:
-        snprintf(buf, 256, "%d", item->j_integer);
+        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%d", item->j_integer);
         return buf;
     case jsonDOUBLE:
-        snprintf(buf, 256, "%f", item->j_double);
+        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%f", item->j_double);
         return buf;
     case jsonSTRING:
-        snprintf(buf, 256, "\"%s\"", format_string_contents(item->j_string));
+        snprintf(buf, JSON_MAX_VALUE_BUFFER, "\"%s\"", format_string_contents(item->j_string));
         return buf;
     default:
         return '\0';
