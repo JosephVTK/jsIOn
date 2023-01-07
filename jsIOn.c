@@ -93,6 +93,8 @@ static void _set_new_json(JSONdata *j, const char *key) {
     j->j_string = NULL;
     j->j_double = 0.00;
     j->j_integer = 0;
+
+    j->_num_children = 0;
 }
 
 /*
@@ -237,6 +239,7 @@ JSONdata *jsonAddObject(JSONdata *container, JSONdata *item) {
         container->last = item;
     }
 
+    container->_num_children++;
     return item;
 }
 
@@ -533,27 +536,30 @@ static char *format_string_contents(char *string) {
     static char buf[JSON_MAX_VALUE_BUFFER];
     size_t i = 0, len = 0;
 
-    for (i = 0, len = 0; i < strlen(string); i++) {
+    len = snprintf(buf, JSON_MAX_VALUE_BUFFER, "%c", '\"');
+
+    for (i = 0; i < strlen(string); i++) {
         switch (string[i]) {
             case '\t':
-                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - len, "%s", "\\t");
+                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\t");
             break;
             case '\n':
-                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - len, "%s", "\\n");
+                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\n");
             break;
             case '\r':
-                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - len, "%s", "\\r");
+                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\r");
             break;
             case '\"':
-                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - len, "%s", "\\\"");
+                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\\"");
             break;
             default:
-                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - len, "%c", string[i]);
+                len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%c", string[i]);
             break;
         }
          
     }
 
+    snprintf(buf + len, JSON_MAX_VALUE_BUFFER - len, "%c", '\"');
     return buf;
 }
 
@@ -579,7 +585,7 @@ static char *json_value_to_string(JSONdata *item) {
         snprintf(buf, JSON_MAX_VALUE_BUFFER, "%f", item->j_double);
         return buf;
     case jsonSTRING:
-        snprintf(buf, JSON_MAX_VALUE_BUFFER, "\"%s\"", format_string_contents(item->j_string));
+        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%s", format_string_contents(item->j_string));
         return buf;
     default:
         return '\0';
