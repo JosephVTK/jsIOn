@@ -579,7 +579,7 @@ static char *json_value_to_string(JSONdata *item) {
         snprintf(buf, JSON_MAX_VALUE_BUFFER, "%s", item->j_integer == 1 ? "true" : "false");
         return buf;
     case jsonINT:
-        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%d", item->j_integer);
+        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%ld", item->j_integer);
         return buf;
     case jsonDOUBLE:
         snprintf(buf, JSON_MAX_VALUE_BUFFER, "%f", item->j_double);

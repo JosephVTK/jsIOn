@@ -47,7 +47,7 @@ typedef struct json_data {
     char *key;
 
     char *j_string;
-    int j_integer;
+    long j_integer;
     double j_double;
 
     int _num_children;
