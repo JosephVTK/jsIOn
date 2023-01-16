@@ -424,7 +424,7 @@ void parse_json_value(char **ptr_string, JSONdata *new_object) {
         new_object->j_integer = is_bool;
         new_object->json_value_type = jsonBOOL;
     } else if (is_int == TRUE) {
-        new_object->j_integer = atoi(temp);
+        new_object->j_integer = atol(temp);
         new_object->json_value_type = jsonINT;
     } else if (is_double == TRUE) {
         new_object->j_double = strtod(temp, NULL);
