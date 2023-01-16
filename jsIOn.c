@@ -256,7 +256,7 @@ JSONdata *jsonGetValueFromObject(JSONdata *object, const char *key) {
     for (j = object->child; j != NULL; j = j->next) {
         if (j->key == NULL)
             continue;
-     
+
         if (strcmp(j->key, key) == 0)
             return j;
     }
@@ -369,21 +369,21 @@ void parse_json_value(char **ptr_string, JSONdata *new_object) {
                 switch (**ptr_string) {
                     case 'n':
                         len += snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", '\n');
-                    break;
+                        break;
                     case '"':
                         len += snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", '\"');
-                    break;
+                        break;
                     case 'r':
                         len += snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", '\r');
-                    break;
+                        break;
                     case '\\':
                         len += snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", '\\');
-                    break;
+                        break;
                     case 't':
                         len += snprintf(temp + len, JSON_MAX_VALUE_BUFFER - len, "%c", '\t');
-                    break;
+                        break;
                     default:
-                    break;
+                        break;
                 }
                 continue;
             }
@@ -418,7 +418,7 @@ void parse_json_value(char **ptr_string, JSONdata *new_object) {
 
     if (is_string == TRUE) {
         /* TODO: This needs to be safer */
-        new_object->j_string = strndup(temp + 1, reverse_count_to_char(temp, '"')-1);
+        new_object->j_string = strndup(temp + 1, reverse_count_to_char(temp, '"') - 1);
         new_object->json_value_type = jsonSTRING;
     } else if (is_bool >= 0) {
         new_object->j_integer = is_bool;
@@ -542,21 +542,21 @@ static char *format_string_contents(char *string) {
         switch (string[i]) {
             case '\t':
                 len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\t");
-            break;
+                break;
             case '\n':
                 len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\n");
-            break;
+                break;
             case '\r':
                 len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\r");
-            break;
+                break;
             case '\"':
                 len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%s", "\\\"");
-            break;
+                break;
             default:
                 len += snprintf(buf + len, JSON_MAX_VALUE_BUFFER - 2 - len, "%c", string[i]);
-            break;
+                break;
         }
-         
+
     }
 
     snprintf(buf + len, JSON_MAX_VALUE_BUFFER - len, "%c", '\"');
@@ -573,22 +573,22 @@ static char *json_value_to_string(JSONdata *item) {
 
     switch (item->json_value_type)
     {
-    case jsonARRAY:
-        return NULL;
-    case jsonBOOL:
-        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%s", item->j_integer == 1 ? "true" : "false");
-        return buf;
-    case jsonINT:
-        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%ld", item->j_integer);
-        return buf;
-    case jsonDOUBLE:
-        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%f", item->j_double);
-        return buf;
-    case jsonSTRING:
-        snprintf(buf, JSON_MAX_VALUE_BUFFER, "%s", format_string_contents(item->j_string));
-        return buf;
-    default:
-        return '\0';
+        case jsonARRAY:
+            return NULL;
+        case jsonBOOL:
+            snprintf(buf, JSON_MAX_VALUE_BUFFER, "%s", item->j_integer == 1 ? "true" : "false");
+            return buf;
+        case jsonINT:
+            snprintf(buf, JSON_MAX_VALUE_BUFFER, "%ld", item->j_integer);
+            return buf;
+        case jsonDOUBLE:
+            snprintf(buf, JSON_MAX_VALUE_BUFFER, "%f", item->j_double);
+            return buf;
+        case jsonSTRING:
+            snprintf(buf, JSON_MAX_VALUE_BUFFER, "%s", format_string_contents(item->j_string));
+            return buf;
+        default:
+            return '\0';
     }
 }
 
